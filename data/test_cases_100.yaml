@@ -1,0 +1,2579 @@
+- id: 1
+  feature: 测试环境
+  story: 环境初始化
+  title: 重置Mock测试数据
+  requires: []
+  method: post
+  path: /test/reset
+  headers: null
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 测试数据重置成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 2
+  feature: 测试环境
+  story: 健康检查
+  title: 查询Mock服务健康状态
+  requires: []
+  method: get
+  path: /health
+  headers: null
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 服务正常
+  - type: json
+    path: $.data.status
+    operator: equals
+    expected: UP
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 3
+  feature: 测试环境
+  story: 异常路由
+  title: 访问不存在的接口
+  requires: []
+  method: get
+  path: /not-exists
+  headers: null
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 404
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 接口不存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 4
+  feature: 登录鉴权
+  story: 登录成功
+  title: 表单方式管理员登录成功
+  requires: []
+  method: post
+  path: /login
+  headers: null
+  params: null
+  data:
+    username: admin
+    password: '123456'
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 登录成功
+  jsonExData:
+    TOKEN: $..token
+  sqlExData: null
+  is_true: true
+- id: 5
+  feature: 登录鉴权
+  story: 登录成功
+  title: JSON方式管理员登录成功
+  requires: []
+  method: post
+  path: /login
+  headers: null
+  params: null
+  data: null
+  json:
+    username: admin
+    password: '123456'
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 登录成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 6
+  feature: 登录鉴权
+  story: 参数校验
+  title: 登录缺少用户名
+  requires: []
+  method: post
+  path: /login
+  headers: null
+  params: null
+  data:
+    password: '123456'
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户名不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 7
+  feature: 登录鉴权
+  story: 参数校验
+  title: 登录用户名为空字符串
+  requires: []
+  method: post
+  path: /login
+  headers: null
+  params: null
+  data:
+    username: ''
+    password: '123456'
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户名不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 8
+  feature: 登录鉴权
+  story: 参数校验
+  title: 登录用户名仅包含空格
+  requires: []
+  method: post
+  path: /login
+  headers: null
+  params: null
+  data:
+    username: '   '
+    password: '123456'
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户名不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 9
+  feature: 登录鉴权
+  story: 参数校验
+  title: 登录缺少密码
+  requires: []
+  method: post
+  path: /login
+  headers: null
+  params: null
+  data:
+    username: admin
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 密码不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 10
+  feature: 登录鉴权
+  story: 认证失败
+  title: 登录用户名错误
+  requires: []
+  method: post
+  path: /login
+  headers: null
+  params: null
+  data:
+    username: wrong
+    password: '123456'
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 401
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户名或密码错误
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 11
+  feature: 登录鉴权
+  story: 认证失败
+  title: 登录密码错误
+  requires: []
+  method: post
+  path: /login
+  headers: null
+  params: null
+  data:
+    username: admin
+    password: wrongpass
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 401
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户名或密码错误
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 12
+  feature: 登录鉴权
+  story: 请求方法
+  title: 使用GET方法访问登录接口
+  requires: []
+  method: get
+  path: /login
+  headers: null
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 405
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 请求方法不允许
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 13
+  feature: 登录鉴权
+  story: Token校验
+  title: 无Token访问用户列表
+  requires: []
+  method: get
+  path: /users
+  headers: null
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 401
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 无效token
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 14
+  feature: 登录鉴权
+  story: Token校验
+  title: 错误Token访问用户列表
+  requires: []
+  method: get
+  path: /users
+  headers:
+    Authorization: invalid-token
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 401
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 无效token
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 15
+  feature: 登录鉴权
+  story: Token校验
+  title: Bearer格式Token访问用户列表
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers:
+    Authorization: Bearer {{ TOKEN }}
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取管理员列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 16
+  feature: 用户管理
+  story: 列表查询
+  title: 查询用户列表成功
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers: &id001
+    Authorization: '{{ TOKEN }}'
+  params:
+    pagenum: 1
+    pagesize: 10
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取管理员列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 17
+  feature: 用户管理
+  story: 分页查询
+  title: 每页一条查询用户
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers: *id001
+  params:
+    pagenum: 1
+    pagesize: 1
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取管理员列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 18
+  feature: 用户管理
+  story: 分页校验
+  title: 页码为零查询用户
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers: *id001
+  params:
+    pagenum: 0
+    pagesize: 10
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分页参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 19
+  feature: 用户管理
+  story: 分页校验
+  title: 每页数量超过上限
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers: *id001
+  params:
+    pagenum: 1
+    pagesize: 101
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分页参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 20
+  feature: 用户管理
+  story: 条件查询
+  title: 按用户名模糊查询
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers: *id001
+  params:
+    username: ali
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取管理员列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 21
+  feature: 用户管理
+  story: 状态筛选
+  title: 查询启用用户
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers: *id001
+  params:
+    state: 'true'
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取管理员列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 22
+  feature: 用户管理
+  story: 状态筛选
+  title: 查询停用用户
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers: *id001
+  params:
+    state: 'false'
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取管理员列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 23
+  feature: 用户管理
+  story: 状态校验
+  title: 使用非法用户状态筛选
+  requires:
+  - TOKEN
+  method: get
+  path: /users
+  headers: *id001
+  params:
+    state: unknown
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户状态参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 24
+  feature: 用户管理
+  story: 新增成功
+  title: 新增测试用户
+  requires:
+  - TOKEN
+  method: post
+  path: /users
+  headers: *id001
+  params: null
+  data: null
+  json:
+    username: jay
+    password: '123456'
+    email: jay@example.com
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 201
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 创建成功
+  jsonExData:
+    NEW_USER_ID: $.data.id
+  sqlExData: null
+  is_true: true
+- id: 25
+  feature: 用户管理
+  story: 唯一性校验
+  title: 新增重复用户名
+  requires:
+  - TOKEN
+  method: post
+  path: /users
+  headers: *id001
+  params: null
+  data: null
+  json:
+    username: jay
+    password: '123456'
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 409
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户名已存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 26
+  feature: 用户管理
+  story: 参数校验
+  title: 新增用户缺少用户名
+  requires:
+  - TOKEN
+  method: post
+  path: /users
+  headers: *id001
+  params: null
+  data: null
+  json:
+    password: '123456'
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户名不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 27
+  feature: 用户管理
+  story: 参数校验
+  title: 新增用户缺少密码
+  requires:
+  - TOKEN
+  method: post
+  path: /users
+  headers: *id001
+  params: null
+  data: null
+  json:
+    username: no_password
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 密码不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 28
+  feature: 用户管理
+  story: 边界校验
+  title: 新增用户密码不足六位
+  requires:
+  - TOKEN
+  method: post
+  path: /users
+  headers: *id001
+  params: null
+  data: null
+  json:
+    username: short_pwd
+    password: '123'
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 密码长度不能少于6位
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 29
+  feature: 用户管理
+  story: 详情查询
+  title: 查询新增用户详情
+  requires:
+  - TOKEN
+  - NEW_USER_ID
+  method: get
+  path: /users/{{ NEW_USER_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取用户成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 30
+  feature: 用户管理
+  story: 详情查询
+  title: 查询不存在的用户
+  requires:
+  - TOKEN
+  method: get
+  path: /users/99999
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 404
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户不存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 31
+  feature: 用户管理
+  story: 信息修改
+  title: 修改新增用户邮箱
+  requires:
+  - TOKEN
+  - NEW_USER_ID
+  method: put
+  path: /users/{{ NEW_USER_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json:
+    email: jay_new@example.com
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 更新用户成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 32
+  feature: 用户管理
+  story: 参数校验
+  title: 修改用户未提供有效字段
+  requires:
+  - TOKEN
+  - NEW_USER_ID
+  method: put
+  path: /users/{{ NEW_USER_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json:
+    password: ignored
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 没有可更新字段
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 33
+  feature: 用户管理
+  story: 状态修改
+  title: 停用新增用户
+  requires:
+  - TOKEN
+  - NEW_USER_ID
+  method: put
+  path: /users/{{ NEW_USER_ID }}/state/false
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 设置状态成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 34
+  feature: 用户管理
+  story: 状态校验
+  title: 设置非法用户状态
+  requires:
+  - TOKEN
+  - NEW_USER_ID
+  method: put
+  path: /users/{{ NEW_USER_ID }}/state/invalid
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户状态参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 35
+  feature: 用户管理
+  story: 删除成功
+  title: 删除新增用户
+  requires:
+  - TOKEN
+  - NEW_USER_ID
+  method: delete
+  path: /users/{{ NEW_USER_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 删除用户成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 36
+  feature: 分类管理
+  story: 列表查询
+  title: 查询分类列表
+  requires:
+  - TOKEN
+  method: get
+  path: /categories
+  headers: *id001
+  params:
+    pagenum: 1
+    pagesize: 10
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取分类列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 37
+  feature: 分类管理
+  story: 分页查询
+  title: 每页一条查询分类
+  requires:
+  - TOKEN
+  method: get
+  path: /categories
+  headers: *id001
+  params:
+    pagenum: 1
+    pagesize: 1
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取分类列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 38
+  feature: 分类管理
+  story: 分页校验
+  title: 分类页码为零
+  requires:
+  - TOKEN
+  method: get
+  path: /categories
+  headers: *id001
+  params:
+    pagenum: 0
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分页参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 39
+  feature: 分类管理
+  story: 条件查询
+  title: 按名称查询分类
+  requires:
+  - TOKEN
+  method: get
+  path: /categories
+  headers: *id001
+  params:
+    name: 数码
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取分类列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 40
+  feature: 分类管理
+  story: 权限校验
+  title: 错误Token查询分类
+  requires: []
+  method: get
+  path: /categories
+  headers:
+    Authorization: bad-token
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 401
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 无效token
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 41
+  feature: 分类管理
+  story: 新增成功
+  title: 新增家居分类
+  requires:
+  - TOKEN
+  method: post
+  path: /categories
+  headers: *id001
+  params: null
+  data: null
+  json:
+    name: 家居
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 201
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 创建分类成功
+  jsonExData:
+    NEW_CATEGORY_ID: $.data.id
+  sqlExData: null
+  is_true: true
+- id: 42
+  feature: 分类管理
+  story: 唯一性校验
+  title: 新增重复分类
+  requires:
+  - TOKEN
+  method: post
+  path: /categories
+  headers: *id001
+  params: null
+  data: null
+  json:
+    name: 家居
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 409
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分类名称已存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 43
+  feature: 分类管理
+  story: 参数校验
+  title: 新增分类名称为空
+  requires:
+  - TOKEN
+  method: post
+  path: /categories
+  headers: *id001
+  params: null
+  data: null
+  json:
+    name: ''
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分类名称不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 44
+  feature: 分类管理
+  story: 详情查询
+  title: 查询新增分类详情
+  requires:
+  - TOKEN
+  - NEW_CATEGORY_ID
+  method: get
+  path: /categories/{{ NEW_CATEGORY_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取分类成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 45
+  feature: 分类管理
+  story: 详情查询
+  title: 查询不存在分类
+  requires:
+  - TOKEN
+  method: get
+  path: /categories/99999
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 404
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分类不存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 46
+  feature: 分类管理
+  story: 信息修改
+  title: 修改新增分类名称
+  requires:
+  - TOKEN
+  - NEW_CATEGORY_ID
+  method: put
+  path: /categories/{{ NEW_CATEGORY_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json:
+    name: 家居生活
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 更新分类成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 47
+  feature: 分类管理
+  story: 参数校验
+  title: 修改分类名称为空
+  requires:
+  - TOKEN
+  - NEW_CATEGORY_ID
+  method: put
+  path: /categories/{{ NEW_CATEGORY_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json:
+    name: ''
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分类名称不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 48
+  feature: 分类管理
+  story: 唯一性校验
+  title: 修改为已有分类名称
+  requires:
+  - TOKEN
+  - NEW_CATEGORY_ID
+  method: put
+  path: /categories/{{ NEW_CATEGORY_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json:
+    name: 数码
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 409
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分类名称已存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 49
+  feature: 分类管理
+  story: 关联校验
+  title: 删除存在商品的分类
+  requires:
+  - TOKEN
+  method: delete
+  path: /categories/1
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 409
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分类下存在商品
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 50
+  feature: 分类管理
+  story: 删除成功
+  title: 删除新增分类
+  requires:
+  - TOKEN
+  - NEW_CATEGORY_ID
+  method: delete
+  path: /categories/{{ NEW_CATEGORY_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 删除分类成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 51
+  feature: 商品管理
+  story: 列表查询
+  title: 查询商品列表
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    pagenum: 1
+    pagesize: 10
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取商品列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 52
+  feature: 商品管理
+  story: 分页查询
+  title: 每页一条查询商品
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    pagenum: 1
+    pagesize: 1
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取商品列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 53
+  feature: 商品管理
+  story: 分页校验
+  title: 商品页码为零
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    pagenum: 0
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 分页参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 54
+  feature: 商品管理
+  story: 关键词查询
+  title: 按商品名称查询
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    keyword: 手机
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取商品列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 55
+  feature: 商品管理
+  story: 分类筛选
+  title: 按分类查询商品
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    category_id: 1
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取商品列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 56
+  feature: 商品管理
+  story: 状态筛选
+  title: 查询下架商品
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    state: 'false'
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取商品列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 57
+  feature: 商品管理
+  story: 价格筛选
+  title: 按价格区间查询商品
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    min_price: 100
+    max_price: 500
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取商品列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 58
+  feature: 商品管理
+  story: 价格校验
+  title: 最低价格大于最高价格
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    min_price: 500
+    max_price: 100
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 最低价格不能大于最高价格
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 59
+  feature: 商品管理
+  story: 排序查询
+  title: 按价格升序查询
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    sort: price_asc
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取商品列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 60
+  feature: 商品管理
+  story: 排序校验
+  title: 使用非法排序参数
+  requires:
+  - TOKEN
+  method: get
+  path: /products
+  headers: *id001
+  params:
+    sort: unknown
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 排序参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 61
+  feature: 商品管理
+  story: 新增成功
+  title: 新增蓝牙耳机商品
+  requires:
+  - TOKEN
+  method: post
+  path: /products
+  headers: *id001
+  params: null
+  data: null
+  json:
+    title: 蓝牙耳机
+    price: 299.0
+    stock: 100
+    category_id: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 201
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 创建商品成功
+  jsonExData:
+    NEW_PRODUCT_ID: $.data.id
+  sqlExData: null
+  is_true: true
+- id: 62
+  feature: 商品管理
+  story: 唯一性校验
+  title: 新增重复商品名称
+  requires:
+  - TOKEN
+  method: post
+  path: /products
+  headers: *id001
+  params: null
+  data: null
+  json:
+    title: 蓝牙耳机
+    price: 299
+    stock: 10
+    category_id: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 409
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品名称已存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 63
+  feature: 商品管理
+  story: 参数校验
+  title: 新增商品缺少名称
+  requires:
+  - TOKEN
+  method: post
+  path: /products
+  headers: *id001
+  params: null
+  data: null
+  json:
+    price: 100
+    stock: 10
+    category_id: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品名称不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 64
+  feature: 商品管理
+  story: 类型校验
+  title: 商品价格使用非数字
+  requires:
+  - TOKEN
+  method: post
+  path: /products
+  headers: *id001
+  params: null
+  data: null
+  json:
+    title: 错误价格商品
+    price: abc
+    stock: 10
+    category_id: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品参数类型不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 65
+  feature: 商品管理
+  story: 边界校验
+  title: 商品价格为零
+  requires:
+  - TOKEN
+  method: post
+  path: /products
+  headers: *id001
+  params: null
+  data: null
+  json:
+    title: 零元商品
+    price: 0
+    stock: 10
+    category_id: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品价格必须大于0
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 66
+  feature: 商品管理
+  story: 边界校验
+  title: 商品库存为负数
+  requires:
+  - TOKEN
+  method: post
+  path: /products
+  headers: *id001
+  params: null
+  data: null
+  json:
+    title: 负库存商品
+    price: 10
+    stock: -1
+    category_id: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品库存不能为负数
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 67
+  feature: 商品管理
+  story: 关联校验
+  title: 新增商品使用不存在分类
+  requires:
+  - TOKEN
+  method: post
+  path: /products
+  headers: *id001
+  params: null
+  data: null
+  json:
+    title: 未知分类商品
+    price: 10
+    stock: 1
+    category_id: 999
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品分类不存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 68
+  feature: 商品管理
+  story: 详情查询
+  title: 查询新增商品详情
+  requires:
+  - TOKEN
+  - NEW_PRODUCT_ID
+  method: get
+  path: /products/{{ NEW_PRODUCT_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取商品成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 69
+  feature: 商品管理
+  story: 详情查询
+  title: 查询不存在商品
+  requires:
+  - TOKEN
+  method: get
+  path: /products/99999
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 404
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品不存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 70
+  feature: 商品管理
+  story: 信息修改
+  title: 修改商品名称
+  requires:
+  - TOKEN
+  - NEW_PRODUCT_ID
+  method: put
+  path: /products/{{ NEW_PRODUCT_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json:
+    title: 降噪蓝牙耳机
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 更新商品成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 71
+  feature: 商品管理
+  story: 信息修改
+  title: 修改商品价格
+  requires:
+  - TOKEN
+  - NEW_PRODUCT_ID
+  method: put
+  path: /products/{{ NEW_PRODUCT_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json:
+    price: 259.0
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 更新商品成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 72
+  feature: 商品管理
+  story: 参数校验
+  title: 修改商品未提供有效字段
+  requires:
+  - TOKEN
+  - NEW_PRODUCT_ID
+  method: put
+  path: /products/{{ NEW_PRODUCT_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json:
+    stock: 20
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 没有可更新字段
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 73
+  feature: 商品管理
+  story: 状态修改
+  title: 下架新增商品
+  requires:
+  - TOKEN
+  - NEW_PRODUCT_ID
+  method: put
+  path: /products/{{ NEW_PRODUCT_ID }}/state/false
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 设置商品状态成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 74
+  feature: 商品管理
+  story: 库存修改
+  title: 更新新增商品库存
+  requires:
+  - TOKEN
+  - NEW_PRODUCT_ID
+  method: put
+  path: /products/{{ NEW_PRODUCT_ID }}/stock
+  headers: *id001
+  params: null
+  data: null
+  json:
+    stock: 80
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 更新库存成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 75
+  feature: 商品管理
+  story: 删除成功
+  title: 删除新增商品
+  requires:
+  - TOKEN
+  - NEW_PRODUCT_ID
+  method: delete
+  path: /products/{{ NEW_PRODUCT_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 删除商品成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 76
+  feature: 订单管理
+  story: 列表查询
+  title: 查询订单列表
+  requires:
+  - TOKEN
+  method: get
+  path: /orders
+  headers: *id001
+  params:
+    pagenum: 1
+    pagesize: 10
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取订单列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 77
+  feature: 订单管理
+  story: 状态筛选
+  title: 查询待支付订单
+  requires:
+  - TOKEN
+  method: get
+  path: /orders
+  headers: *id001
+  params:
+    status: pending
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取订单列表成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 78
+  feature: 订单管理
+  story: 状态校验
+  title: 使用非法订单状态筛选
+  requires:
+  - TOKEN
+  method: get
+  path: /orders
+  headers: *id001
+  params:
+    status: unknown
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 订单状态参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 79
+  feature: 订单管理
+  story: 新增成功
+  title: 创建测试订单
+  requires:
+  - TOKEN
+  method: post
+  path: /orders
+  headers: *id001
+  params: null
+  data: null
+  json:
+    user_id: 2
+    items:
+    - product_id: 2
+      quantity: 2
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 201
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 创建订单成功
+  jsonExData:
+    NEW_ORDER_ID: $.data.id
+  sqlExData: null
+  is_true: true
+- id: 80
+  feature: 订单管理
+  story: 参数校验
+  title: 创建订单缺少用户
+  requires:
+  - TOKEN
+  method: post
+  path: /orders
+  headers: *id001
+  params: null
+  data: null
+  json:
+    items:
+    - product_id: 2
+      quantity: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户参数不合法
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 81
+  feature: 订单管理
+  story: 关联校验
+  title: 创建订单使用不存在用户
+  requires:
+  - TOKEN
+  method: post
+  path: /orders
+  headers: *id001
+  params: null
+  data: null
+  json:
+    user_id: 999
+    items:
+    - product_id: 2
+      quantity: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 用户不存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 82
+  feature: 订单管理
+  story: 参数校验
+  title: 创建订单商品列表为空
+  requires:
+  - TOKEN
+  method: post
+  path: /orders
+  headers: *id001
+  params: null
+  data: null
+  json:
+    user_id: 2
+    items: []
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 订单商品不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 83
+  feature: 订单管理
+  story: 关联校验
+  title: 创建订单使用不存在商品
+  requires:
+  - TOKEN
+  method: post
+  path: /orders
+  headers: *id001
+  params: null
+  data: null
+  json:
+    user_id: 2
+    items:
+    - product_id: 999
+      quantity: 1
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品不存在
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 84
+  feature: 订单管理
+  story: 边界校验
+  title: 创建订单商品数量为零
+  requires:
+  - TOKEN
+  method: post
+  path: /orders
+  headers: *id001
+  params: null
+  data: null
+  json:
+    user_id: 2
+    items:
+    - product_id: 2
+      quantity: 0
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品数量必须大于0
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 85
+  feature: 订单管理
+  story: 库存校验
+  title: 创建订单商品库存不足
+  requires:
+  - TOKEN
+  method: post
+  path: /orders
+  headers: *id001
+  params: null
+  data: null
+  json:
+    user_id: 2
+    items:
+    - product_id: 2
+      quantity: 9999
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 409
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 商品库存不足
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 86
+  feature: 订单管理
+  story: 详情查询
+  title: 查询新增订单详情
+  requires:
+  - TOKEN
+  - NEW_ORDER_ID
+  method: get
+  path: /orders/{{ NEW_ORDER_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 获取订单成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 87
+  feature: 订单管理
+  story: 状态流转
+  title: 订单从待支付变为已支付
+  requires:
+  - TOKEN
+  - NEW_ORDER_ID
+  method: put
+  path: /orders/{{ NEW_ORDER_ID }}/status/paid
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 更新订单状态成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 88
+  feature: 订单管理
+  story: 状态流转
+  title: 订单从已支付变为已发货
+  requires:
+  - TOKEN
+  - NEW_ORDER_ID
+  method: put
+  path: /orders/{{ NEW_ORDER_ID }}/status/shipped
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 更新订单状态成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 89
+  feature: 订单管理
+  story: 状态流转
+  title: 订单从已发货变为已完成
+  requires:
+  - TOKEN
+  - NEW_ORDER_ID
+  method: put
+  path: /orders/{{ NEW_ORDER_ID }}/status/completed
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 更新订单状态成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 90
+  feature: 订单管理
+  story: 删除成功
+  title: 删除已完成订单
+  requires:
+  - TOKEN
+  - NEW_ORDER_ID
+  method: delete
+  path: /orders/{{ NEW_ORDER_ID }}
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 删除订单成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 91
+  feature: 文件上传
+  story: 上传成功
+  title: 上传TXT文件
+  requires:
+  - TOKEN
+  method: post
+  path: /upload
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/sample.txt
+      filename: sample.txt
+      content_type: text/plain
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 上传成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 92
+  feature: 文件上传
+  story: 上传成功
+  title: 上传JPG文件
+  requires:
+  - TOKEN
+  method: post
+  path: /upload
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/sample.jpg
+      filename: sample.jpg
+      content_type: image/jpeg
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 上传成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 93
+  feature: 文件上传
+  story: 上传成功
+  title: 上传PNG文件
+  requires:
+  - TOKEN
+  method: post
+  path: /upload
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/sample.png
+      filename: sample.png
+      content_type: image/png
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 上传成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 94
+  feature: 文件上传
+  story: 权限校验
+  title: 无Token上传文件
+  requires: []
+  method: post
+  path: /upload
+  headers: null
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/sample.txt
+      filename: sample.txt
+      content_type: text/plain
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 401
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 无效token
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 95
+  feature: 文件上传
+  story: 权限校验
+  title: 错误Token上传文件
+  requires: []
+  method: post
+  path: /upload
+  headers:
+    Authorization: invalid-token
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/sample.txt
+      filename: sample.txt
+      content_type: text/plain
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 401
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 无效token
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 96
+  feature: 文件上传
+  story: 参数校验
+  title: 未选择文件
+  requires:
+  - TOKEN
+  method: post
+  path: /upload
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 请选择上传文件
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 97
+  feature: 文件上传
+  story: 类型校验
+  title: 上传不支持的EXE文件
+  requires:
+  - TOKEN
+  method: post
+  path: /upload
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/sample.exe
+      filename: sample.exe
+      content_type: application/octet-stream
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 415
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 文件类型不支持
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 98
+  feature: 文件上传
+  story: 内容校验
+  title: 上传空文件
+  requires:
+  - TOKEN
+  method: post
+  path: /upload
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/empty.txt
+      filename: empty.txt
+      content_type: text/plain
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 400
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 上传文件不能为空
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 99
+  feature: 文件上传
+  story: 类型校验
+  title: 上传没有扩展名的文件
+  requires:
+  - TOKEN
+  method: post
+  path: /upload
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/sample.txt
+      filename: sample
+      content_type: text/plain
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 415
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 文件类型不支持
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+- id: 100
+  feature: 文件上传
+  story: 大小写兼容
+  title: 上传大写JPG扩展名文件
+  requires:
+  - TOKEN
+  method: post
+  path: /upload
+  headers: *id001
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: ./file/sample.jpg
+      filename: SAMPLE.JPG
+      content_type: image/jpeg
+  assertions:
+  - type: status_code
+    operator: equals
+    expected: 200
+  - type: json
+    path: $..msg
+    operator: equals
+    expected: 上传成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true

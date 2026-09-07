@@ -1,0 +1,185 @@
+- id: 1
+  feature: 登录
+  story: 登录成功
+  title: 管理员登录成功
+  requires: []
+
+  method: post
+  path: /login
+  headers: null
+  params: null
+
+  data:
+    username: admin
+    password: "123456"
+
+  json: null
+  files: null
+
+  assertions:
+    - type: status_code
+      operator: equals
+      expected: 200
+
+    - type: json
+      path: "$..msg"
+      operator: equals
+      expected: 登录成功
+
+    - type: database
+      sql: 'select mg_name from sp_manager where mg_name = "admin"'
+      operator: equals
+      expected: admin
+
+  jsonExData:
+    TOKEN: "$..token"
+
+  sqlExData:
+    ADMIN_NAME: 'select mg_name from sp_manager where mg_name = "admin"'
+
+  is_true: true
+
+- id: 2
+  feature: 用户管理
+  story: 查询失败
+  title: 未登录状态查询用户列表失败
+  requires: []
+
+  method: get
+  path: /users
+  headers: null
+
+  params:
+    pagenum: 1
+    pagesize: 1
+
+  data: null
+  json: null
+  files: null
+
+  assertions:
+    - type: text
+      operator: contains
+      expected: 无效token
+
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+
+- id: 3
+  feature: 用户管理
+  story: 查询成功
+  title: 登录状态查询用户列表成功
+  requires:
+    - TOKEN
+  method: get
+  path: /users
+  headers:
+    Authorization: "{{ TOKEN }}"
+  params:
+    pagenum: 1
+    pagesize: 1
+  data: null
+  json: null
+  files: null
+  assertions:
+    - type: status_code
+      operator: equals
+      expected: 200
+
+    - type: json
+      path: "$..msg"
+      operator: equals
+      expected: 获取管理员列表成功
+  jsonExData:
+    JAY_ID: "$..id"
+  sqlExData: null
+  is_true: true
+
+- id: 4
+  feature: 用户管理
+  story: 新增成功
+  title: 添加用户，添加成功
+  requires:
+    - TOKEN
+  method: post
+  path: /users
+  headers:
+    Authorization: "{{ TOKEN }}"
+  params: null
+  data:
+    username: jay
+    password: "123456"
+  json: null
+  files: null
+  assertions:
+    - type: status_code
+      operator: equals
+      expected: 200
+
+    - type: json
+      path: "$..msg"
+      operator: equals
+      expected: 创建成功
+  jsonExData:
+  sqlExData: null
+  is_true: true
+
+- id: 5
+  feature: 用户管理
+  story: 修改成功
+  title: 修改用户状态成功
+  requires:
+    - TOKEN
+    - JAY_ID
+  method: put
+  path: "/users/{{ JAY_ID }}/state/true"
+  headers:
+    Authorization: "{{ TOKEN }}"
+  params: null
+  data: null
+  json: null
+  files: null
+  assertions:
+    - type: status_code
+      operator: equals
+      expected: 200
+
+    - type: json
+      path: "$..msg"
+      operator: equals
+      expected: 设置状态成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
+
+- id: 6
+  feature: 图片上传
+  story: 上传成功
+  title: 图片上传成功
+  requires:
+    - TOKEN
+  method: post
+  path: /upload
+  headers:
+    Authorization: "{{ TOKEN }}"
+  params: null
+  data: null
+  json: null
+  files:
+    file:
+      path: "./file/1.jpg"
+      filename: "1.jpg"
+      content_type: "image/jpeg"
+  assertions:
+    - type: status_code
+      operator: equals
+      expected: 200
+
+    - type: json
+      path: "$..msg"
+      operator: equals
+      expected: 上传成功
+  jsonExData: null
+  sqlExData: null
+  is_true: true
