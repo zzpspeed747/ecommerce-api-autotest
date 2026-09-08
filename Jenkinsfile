@@ -5,7 +5,7 @@ pipeline {
         // 不使用Jenkins默认隐式拉取，后面手动checkout
         skipDefaultCheckout(true)
 
-        timestamps()
+       
 
         // 防止两次构建同时占用8888端口
         disableConcurrentBuilds()
