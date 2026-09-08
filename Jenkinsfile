@@ -136,145 +136,146 @@ pipeline {
             }
         }
 
-    stage('API Integration Tests') {
-    steps {
-        powershell '''
-            $ErrorActionPreference = "Stop"
+        stage('API Integration Tests') {
+        steps {
+            powershell '''
+                $ErrorActionPreference = "Stop"
 
-            $pythonPath = Join-Path `
-                $env:WORKSPACE `
-                ".venv\\Scripts\\python.exe"
+                $pythonPath = Join-Path `
+                    $env:WORKSPACE `
+                    ".venv\\Scripts\\python.exe"
 
-            $mockDirectory = Join-Path `
-                $env:WORKSPACE `
-                "_mock"
+                $mockDirectory = Join-Path `
+                    $env:WORKSPACE `
+                    "_mock"
 
-            $mockScript = Join-Path `
-                $mockDirectory `
-                "mock_server.py"
+                $mockScript = Join-Path `
+                    $mockDirectory `
+                    "mock_server.py"
 
-            $mockLog = Join-Path `
-                $env:WORKSPACE `
-                "report\\mock-server.log"
+                $mockLog = Join-Path `
+                    $env:WORKSPACE `
+                    "report\\mock-server.log"
 
-            $mockErrorLog = Join-Path `
-                $env:WORKSPACE `
-                "report\\mock-server-error.log"
+                $mockErrorLog = Join-Path `
+                    $env:WORKSPACE `
+                    "report\\mock-server-error.log"
 
-            $healthUrl = `
-                "http://127.0.0.1:8888/api/private/v1/health"
+                $healthUrl = `
+                    "http://127.0.0.1:8888/api/private/v1/health"
 
-            $mockProcess = $null
+                $mockProcess = $null
 
-            try {
-                Write-Host "Starting Mock server..."
+                try {
+                    Write-Host "Starting Mock server..."
 
-                $mockProcess = Start-Process `
-                    -FilePath $pythonPath `
-                    -ArgumentList "`"$mockScript`"" `
-                    -WorkingDirectory $mockDirectory `
-                    -RedirectStandardOutput $mockLog `
-                    -RedirectStandardError $mockErrorLog `
-                    -PassThru
+                    $mockProcess = Start-Process `
+                        -FilePath $pythonPath `
+                        -ArgumentList "`"$mockScript`"" `
+                        -WorkingDirectory $mockDirectory `
+                        -RedirectStandardOutput $mockLog `
+                        -RedirectStandardError $mockErrorLog `
+                        -PassThru
 
-                Write-Host "Mock PID: $($mockProcess.Id)"
+                    Write-Host "Mock PID: $($mockProcess.Id)"
 
-                $healthy = $false
+                    $healthy = $false
 
-                for ($attempt = 1; $attempt -le 10; $attempt++) {
-                    Start-Sleep -Seconds 1
+                    for ($attempt = 1; $attempt -le 10; $attempt++) {
+                        Start-Sleep -Seconds 1
 
-                    $runningProcess = Get-Process `
-                        -Id $mockProcess.Id `
-                        -ErrorAction SilentlyContinue
+                        $runningProcess = Get-Process `
+                            -Id $mockProcess.Id `
+                            -ErrorAction SilentlyContinue
 
-                    if (-not $runningProcess) {
-                        Write-Host "Mock process exited unexpectedly"
+                        if (-not $runningProcess) {
+                            Write-Host "Mock process exited unexpectedly"
 
+                            if (Test-Path $mockErrorLog) {
+                                Get-Content $mockErrorLog
+                            }
+
+                            throw "Mock process exited unexpectedly"
+                        }
+
+                        try {
+                            $response = Invoke-RestMethod `
+                                -Uri $healthUrl `
+                                -Method Get `
+                                -TimeoutSec 2
+
+                            if ($response.data.status -eq "UP") {
+                                Write-Host "Mock health check passed"
+                                $healthy = $true
+                                break
+                            }
+                        }
+                        catch {
+                            Write-Host "Waiting for Mock: $attempt/10"
+                        }
+                    }
+
+                    if (-not $healthy) {
                         if (Test-Path $mockErrorLog) {
                             Get-Content $mockErrorLog
                         }
 
-                        throw "Mock process exited unexpectedly"
+                        throw "Mock health check failed"
                     }
 
-                    try {
-                        $response = Invoke-RestMethod `
-                            -Uri $healthUrl `
-                            -Method Get `
-                            -TimeoutSec 2
+                    Write-Host "Collecting API test cases..."
 
-                        if ($response.data.status -eq "UP") {
-                            Write-Host "Mock health check passed"
-                            $healthy = $true
-                            break
-                        }
-                    }
-                    catch {
-                        Write-Host "Waiting for Mock: $attempt/10"
-                    }
-                }
+                    & $pythonPath `
+                        -m pytest `
+                        "testcases\\test_runner.py" `
+                        --collect-only `
+                        -q
 
-                if (-not $healthy) {
-                    if (Test-Path $mockErrorLog) {
-                        Get-Content $mockErrorLog
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "Test case collection failed"
                     }
 
-                    throw "Mock health check failed"
+                    Write-Host "Running API test cases..."
+
+                    & $pythonPath `
+                        -m pytest `
+                        "testcases\\test_runner.py" `
+                        -v `
+                        "--junitxml=report\\junit-api.xml" `
+                        "--alluredir=report\\json_report" `
+                        --clean-alluredir
+
+                    $pytestExitCode = $LASTEXITCODE
+
+                    if ($pytestExitCode -ne 0) {
+                        throw "API tests failed, pytest exit code: $pytestExitCode"
+                    }
+
+                    Write-Host "API tests passed"
                 }
-
-                Write-Host "Collecting API test cases..."
-
-                & $pythonPath `
-                    -m pytest `
-                    "testcases\\test_runner.py" `
-                    --collect-only `
-                    -q
-
-                if ($LASTEXITCODE -ne 0) {
-                    throw "Test case collection failed"
-                }
-
-                Write-Host "Running API test cases..."
-
-                & $pythonPath `
-                    -m pytest `
-                    "testcases\\test_runner.py" `
-                    -v `
-                    "--junitxml=report\\junit-api.xml" `
-                    "--alluredir=report\\json_report" `
-                    --clean-alluredir
-
-                $pytestExitCode = $LASTEXITCODE
-
-                if ($pytestExitCode -ne 0) {
-                    throw "API tests failed, pytest exit code: $pytestExitCode"
-                }
-
-                Write-Host "API tests passed"
-            }
-            finally {
-                if ($mockProcess) {
-                    $runningProcess = Get-Process `
-                        -Id $mockProcess.Id `
-                        -ErrorAction SilentlyContinue
-
-                    if ($runningProcess) {
-                        Write-Host "Stopping Mock server..."
-
-                        Stop-Process `
-                            -Id $mockProcess.Id `
-                            -Force
-
-                        Wait-Process `
+                finally {
+                    if ($mockProcess) {
+                        $runningProcess = Get-Process `
                             -Id $mockProcess.Id `
                             -ErrorAction SilentlyContinue
 
-                        Write-Host "Mock server stopped"
+                        if ($runningProcess) {
+                            Write-Host "Stopping Mock server..."
+
+                            Stop-Process `
+                                -Id $mockProcess.Id `
+                                -Force
+
+                            Wait-Process `
+                                -Id $mockProcess.Id `
+                                -ErrorAction SilentlyContinue
+
+                            Write-Host "Mock server stopped"
+                        }
                     }
                 }
-            }
-        '''
+            '''
+        }
     }
 }
 
