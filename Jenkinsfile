@@ -136,159 +136,182 @@ pipeline {
             }
         }
 
-        stage('启动Mock服务') {
-            steps {
-                powershell '''
-                    $pythonPath = Join-Path `
-                        $env:WORKSPACE `
-                        ".venv\\Scripts\\python.exe"
+    stage('API Integration Tests') {
+    steps {
+        powershell '''
+            $ErrorActionPreference = "Stop"
 
-                    $mockDirectory = Join-Path `
-                        $env:WORKSPACE `
-                        "_mock"
+            $pythonPath = Join-Path `
+                $env:WORKSPACE `
+                ".venv\\Scripts\\python.exe"
 
-                    $mockScript = Join-Path `
-                        $mockDirectory `
-                        "mock_server.py"
+            $mockDirectory = Join-Path `
+                $env:WORKSPACE `
+                "_mock"
 
-                    $mockLog = Join-Path `
-                        $env:WORKSPACE `
-                        "report\\mock-server.log"
+            $mockScript = Join-Path `
+                $mockDirectory `
+                "mock_server.py"
 
-                    $mockErrorLog = Join-Path `
-                        $env:WORKSPACE `
-                        "report\\mock-server-error.log"
+            $mockLog = Join-Path `
+                $env:WORKSPACE `
+                "report\\mock-server.log"
 
-                    $mockProcess = Start-Process `
-                        -FilePath $pythonPath `
-                        -ArgumentList "`"$mockScript`"" `
-                        -WorkingDirectory $mockDirectory `
-                        -RedirectStandardOutput $mockLog `
-                        -RedirectStandardError $mockErrorLog `
-                        -PassThru
+            $mockErrorLog = Join-Path `
+                $env:WORKSPACE `
+                "report\\mock-server-error.log"
 
-                    Set-Content `
-                        -Path ".mock.pid" `
-                        -Value $mockProcess.Id
+            $healthUrl = `
+                "http://127.0.0.1:8888/api/private/v1/health"
 
-                    Write-Host "Mock服务进程ID：$($mockProcess.Id)"
-                '''
-            }
-        }
+            $mockProcess = $null
 
-        stage('Mock健康检查') {
-            steps {
-                powershell '''
-                    $healthUrl = `
-                        "http://127.0.0.1:8888/api/private/v1/health"
+            try {
+                Write-Host "Starting Mock server..."
 
-                    $healthy = $false
+                $mockProcess = Start-Process `
+                    -FilePath $pythonPath `
+                    -ArgumentList "`"$mockScript`"" `
+                    -WorkingDirectory $mockDirectory `
+                    -RedirectStandardOutput $mockLog `
+                    -RedirectStandardError $mockErrorLog `
+                    -PassThru
 
-                    for ($attempt = 1; $attempt -le 10; $attempt++) {
-                        try {
-                            $response = Invoke-RestMethod `
-                                -Uri $healthUrl `
-                                -Method Get `
-                                -TimeoutSec 2
+                Write-Host "Mock PID: $($mockProcess.Id)"
 
-                            if ($response.data.status -eq "UP") {
-                                Write-Host "Mock健康检查通过"
-                                $healthy = $true
-                                break
-                            }
+                $healthy = $false
+
+                for ($attempt = 1; $attempt -le 10; $attempt++) {
+                    Start-Sleep -Seconds 1
+
+                    $runningProcess = Get-Process `
+                        -Id $mockProcess.Id `
+                        -ErrorAction SilentlyContinue
+
+                    if (-not $runningProcess) {
+                        Write-Host "Mock process exited unexpectedly"
+
+                        if (Test-Path $mockErrorLog) {
+                            Get-Content $mockErrorLog
                         }
-                        catch {
-                            Write-Host "等待Mock启动：$attempt/10"
-                            Start-Sleep -Seconds 1
-                        }
+
+                        throw "Mock process exited unexpectedly"
                     }
 
-                    if (-not $healthy) {
-                        throw "Mock服务健康检查失败"
+                    try {
+                        $response = Invoke-RestMethod `
+                            -Uri $healthUrl `
+                            -Method Get `
+                            -TimeoutSec 2
+
+                        if ($response.data.status -eq "UP") {
+                            Write-Host "Mock health check passed"
+                            $healthy = $true
+                            break
+                        }
                     }
-                '''
+                    catch {
+                        Write-Host "Waiting for Mock: $attempt/10"
+                    }
+                }
+
+                if (-not $healthy) {
+                    if (Test-Path $mockErrorLog) {
+                        Get-Content $mockErrorLog
+                    }
+
+                    throw "Mock health check failed"
+                }
+
+                Write-Host "Collecting API test cases..."
+
+                & $pythonPath `
+                    -m pytest `
+                    "testcases\\test_runner.py" `
+                    --collect-only `
+                    -q
+
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Test case collection failed"
+                }
+
+                Write-Host "Running API test cases..."
+
+                & $pythonPath `
+                    -m pytest `
+                    "testcases\\test_runner.py" `
+                    -v `
+                    "--junitxml=report\\junit-api.xml" `
+                    "--alluredir=report\\json_report" `
+                    --clean-alluredir
+
+                $pytestExitCode = $LASTEXITCODE
+
+                if ($pytestExitCode -ne 0) {
+                    throw "API tests failed, pytest exit code: $pytestExitCode"
+                }
+
+                Write-Host "API tests passed"
             }
-        }
+            finally {
+                if ($mockProcess) {
+                    $runningProcess = Get-Process `
+                        -Id $mockProcess.Id `
+                        -ErrorAction SilentlyContinue
 
-        stage('收集接口用例') {
-            steps {
-                bat '''
-                    chcp 65001
+                    if ($runningProcess) {
+                        Write-Host "Stopping Mock server..."
 
-                    .venv\\Scripts\\python.exe -m pytest ^
-                        testcases\\test_runner.py ^
-                        --collect-only ^
-                        -q
-                '''
-            }
-        }
+                        Stop-Process `
+                            -Id $mockProcess.Id `
+                            -Force
 
-        stage('执行100条接口用例') {
-            steps {
-                bat '''
-                    chcp 65001
-
-                    .venv\\Scripts\\python.exe -m pytest ^
-                        testcases\\test_runner.py ^
-                        -v ^
-                        --junitxml=report\\junit-api.xml ^
-                        --alluredir=report\\json_report ^
-                        --clean-alluredir
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-            script {
-                if (fileExists('.mock.pid')) {
-                    powershell '''
-                        $mockPid = Get-Content ".mock.pid"
-
-                        $process = Get-Process `
-                            -Id $mockPid `
+                        Wait-Process `
+                            -Id $mockProcess.Id `
                             -ErrorAction SilentlyContinue
 
-                        if ($process) {
-                            Stop-Process `
-                                -Id $mockPid `
-                                -Force
-
-                            Write-Host "Mock服务已经关闭"
-                        } else {
-                            Write-Host "Mock进程已经提前退出"
-                        }
-                    '''
+                        Write-Host "Mock server stopped"
+                    }
                 }
             }
-
-            junit(
-                testResults: 'report/junit-*.xml',
-                allowEmptyResults: true
-            )
-
-            allure(
-                includeProperties: false,
-                jdk: '',
-                results: [
-                    [path: 'report/json_report']
-                ]
-            )
-
-            archiveArtifacts(
-                artifacts: 'report/**/*, log/**/*',
-                allowEmptyArchive: true,
-                fingerprint: true
-            )
-        }
-
-        success {
-            echo '单元测试与100条接口测试全部通过'
-        }
-
-        failure {
-            echo '流水线执行失败，请查看JUnit、Allure及Mock日志'
-        }
+        '''
     }
+}
+
+post {
+    always {
+        junit(
+            testResults: 'report/junit-*.xml',
+            allowEmptyResults: true
+        )
+
+        script {
+            if (fileExists('report/json_report')) {
+                allure(
+                    includeProperties: false,
+                    jdk: '',
+                    results: [
+                        [path: 'report/json_report']
+                    ]
+                )
+            } else {
+                echo 'No Allure results were generated'
+            }
+        }
+
+        archiveArtifacts(
+            artifacts: 'report/**/*, log/**/*',
+            allowEmptyArchive: true,
+            fingerprint: true
+        )
+    }
+
+    success {
+        echo 'Unit tests and API tests passed'
+    }
+
+    failure {
+        echo 'Pipeline failed, check JUnit, Allure and Mock logs'
+    }
+}
 }
