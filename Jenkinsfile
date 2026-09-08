@@ -278,40 +278,40 @@ pipeline {
     }
 }
 
-post {
-    always {
-        junit(
-            testResults: 'report/junit-*.xml',
-            allowEmptyResults: true
-        )
+    post {
+        always {
+            junit(
+                testResults: 'report/junit-*.xml',
+                allowEmptyResults: true
+            )
 
-        script {
-            if (fileExists('report/json_report')) {
-                allure(
-                    includeProperties: false,
-                    jdk: '',
-                    results: [
-                        [path: 'report/json_report']
-                    ]
-                )
-            } else {
-                echo 'No Allure results were generated'
+            script {
+                if (fileExists('report/json_report')) {
+                    allure(
+                        includeProperties: false,
+                        jdk: '',
+                        results: [
+                            [path: 'report/json_report']
+                        ]
+                    )
+                } else {
+                    echo 'No Allure results were generated'
+                }
             }
+
+            archiveArtifacts(
+                artifacts: 'report/**/*, log/**/*',
+                allowEmptyArchive: true,
+                fingerprint: true
+            )
         }
 
-        archiveArtifacts(
-            artifacts: 'report/**/*, log/**/*',
-            allowEmptyArchive: true,
-            fingerprint: true
-        )
-    }
+        success {
+            echo 'Unit tests and API tests passed'
+        }
 
-    success {
-        echo 'Unit tests and API tests passed'
+        failure {
+            echo 'Pipeline failed, check JUnit, Allure and Mock logs'
+        }
     }
-
-    failure {
-        echo 'Pipeline failed, check JUnit, Allure and Mock logs'
-    }
-}
 }
